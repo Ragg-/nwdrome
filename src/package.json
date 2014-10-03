@@ -1,0 +1,5 @@
+{
+    "name"          : "jsdrome-nw",
+    "main"          : "bootstrap.html",
+    "chromium-args" : "--enable-web-midi"
+}
