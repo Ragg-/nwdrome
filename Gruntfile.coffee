@@ -11,13 +11,13 @@ module.exports = (grunt) ->
         DS      = path.sep
         bin     = PATHS[os.type()]
         proc    = null
-        
+
         try
             if bin?
                 proc = spawn bin, ["--debug", "src" + DS], {detached: true}
             else
                 grunt.fail.fatal "Unsupported environment (#{os.type()})"
-        
+
         catch e
             console.error e
 
@@ -39,3 +39,4 @@ module.exports = (grunt) ->
     # regist Tasks
     grunt.registerTask "debug", debug
     grunt.registerTask "release", ["nodewebkit"]
+    grunt.registerTask "default", ["debug"]
