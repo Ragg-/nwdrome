@@ -143,7 +143,7 @@ JSdrome.prototype.init = function(stream) {
 			} else if (i === 200) {
 				sum = Math.min(sum / 50, 1.0);
 
-				// sum: 
+				// sum:
 				//    直近4.5ミリ秒の絶対値合計
 				//    リアルタイムの音量
 				//    200sample / 44100Hz = 0.0045sec = 4.5msec
@@ -171,6 +171,20 @@ JSdrome.prototype.init = function(stream) {
 			buf1[i] = 0; //inbuf1[i];
 		}
 	}
+}
+
+JSdrome.prototype.setAudioInputSource = function (mediaStream) {
+	if (! mediaStream instanceof MediaStreamAudioSourceNode) {
+        console.error("Input is not MediaStreamAudioSourceNode.", mediaStream);
+        return;
+	}
+
+    // Change audio input
+    this.mic.disconnect(this.preGain);
+	this.mic = null;
+
+    this.mic = mediaStream;
+    this.mic.connect(this.preGain);
 }
 
 // show parameter value
@@ -555,6 +569,3 @@ $(window).keyup(function(e){ app.onKeyup(e); });
 
 
 });
-
-
-
