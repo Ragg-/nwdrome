@@ -42,7 +42,7 @@ nwdrome.addRendererPlugin(function() {
         c_ctx.stroke();
 
         c_ctx.beginPath();
-        for (i = samples.length - 1; i <= 0; i--) {
+        for (i = samples.length - 1; i >= 0; i--) {
             y = maxWaveHeight * samples[i] / 255;
             c_ctx.lineTo(pointInterval * i, baseLine + y);
         }
