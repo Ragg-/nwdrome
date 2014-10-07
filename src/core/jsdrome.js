@@ -6,15 +6,15 @@
  * Copyright 2014, aike (@aike1000)
  *
  */
-var app;
+var app, nwdrome;
 var config = {
 	mic: true,
 	camera: true,
 	midi: true,
 	root: ''
-}
+};
 
-$(function() {
+(function() {
 
 // setup browser supported api
 if ( !window.AudioContext ) {
@@ -32,25 +32,164 @@ if ( !window.requestAnimationFrame ) {
 		};
 }
 
+
+//////////////////////////////////////////
+// Nwdrome definition
+var Nwdrome = function () {
+	this._pluginStock = {
+		renderer: {},
+		common	: {},
+		effector: {}
+	};
+
+	this._activatedRenderer = [];
+	this._activatedCommon = [];
+	this._activatedEffector = [];
+	this._destination = document.createElement("canvas");
+}
+
+Nwdrome.getInstance = function () {
+	if (Nwdrome._instance) {
+		return Nwdrome._instance;
+	}
+
+	return Nwdrome._instance = new Nwdrome();
+}
+
+Nwdrome.prototype.addRendererPlugin = function (factory) {
+	var plugin = factory();
+	this._pluginStock.renderer[plugin.id] = plugin;
+	console.info("%cRenderer plugin added: %s", "background-color:#3cf;color:white", plugin.id);
+	return plugin;
+}
+
+Nwdrome.prototype.addCommonPlugin = function (factory) {
+	var plugin = factory();
+	this._pluginStock.common[plugin.id] = plugin;
+	console.info("%cCommon plugin added: %s", "background-color:#3cf;color:white", plugin.id);
+	return plugin;
+}
+
+Nwdrome.prototype.addEffectorPlugin = function (factory) {
+	var plugin = factory();
+	this._pluginStock.effector[plugin.id] = plugin;
+	console.info("%cEffector plugin added: %s", "background-color:#3cf;color:white", plugin.id);
+	return plugin;
+}
+
+Nwdrome.prototype.activateRenderer = function (pluginId) {
+	var plugin = this._pluginStock.renderer[pluginId];
+
+	if (plugin) {
+		var canvas   = document.createElement("canvas"),
+			instance = new plugin(canvas),
+			pluginSet = {
+				uniqId 	: this._activatedRenderer.length,
+				canvas 	: canvas,
+				instance: instance
+			};
+
+		this._activatedRenderer.push(pluginSet);
+		return pluginSet;
+	}
+}
+
+Nwdrome.prototype.activateCommon = function (timing, pluginId) {
+	var plugin = this._pluginStock.common[pluginId];
+
+	if (plugin) {
+		var canvas   = document.createElement("canvas"),
+			instance = new plugin(canvas),
+			pluginSet = {
+				uniqId 	: this._activatedCommon.length,
+				timing	: timing,
+				canvas 	: canvas,
+				instance: instance
+			};
+
+		this._activatedCommon.push(pluginSet);
+		return pluginSet;
+	}
+}
+
+Nwdrome.prototype.activateEffector = function (pluginId) {
+	var plugin = this._pluginStock.effector[pluginId];
+
+	if (plugin) {
+		var instance = new plugin(),
+			pluginSet = {
+				uniqId 	: this._activatedEffector.length,
+				instance: instance
+			};
+
+		this._activatedEffector.push(pluginSet);
+		return pluginSet;
+	}
+}
+
+
+//////////////////////////////////////////
+// NwdromeJSdromePlugger definition
+var NwdromeJSdromePlugger = function (pluginId) {
+	var plugin = Nwdrome.getInstance().activateRenderer(pluginId);
+	this._plugin = plugin.instance;
+	this._canvas = plugin.canvas;
+	this._canvas.style.position = "absolute";
+
+	Plugin = this._plugin.constructor;
+	this.id = "#nwplug-" + NwdromeJSdromePlugger._instances++;
+	this.description = Plugin.description;
+	this.thumbnail = Plugin.thumbnail;
+
+	var self = this;
+	$(function () {
+		document.getElementById("jsdrome").appendChild(self._canvas);
+	});
+}
+
+NwdromeJSdromePlugger._instances = 0;
+
+NwdromeJSdromePlugger.prototype = {
+	onStart : function () {
+		this._plugin.onStart();
+		this._canvas.style.display = "block";
+	},
+	onStop : function () {
+		this._plugin.onStop();
+		this._canvas.style.display = "none";
+	},
+	onFade : function (opacity) {
+		this._canvas.style.opacity = opacity;
+	},
+	onAudio : function (moment, period) {
+		this._plugin.onAudio(moment, period);
+	},
+	onResize : function (x, y, w, h) {
+		console.log(x, y);
+		this._canvas.style.left = x + "px";
+		this._canvas.style.top 	= y + "px";
+		this._canvas.width		= w;
+		this._canvas.height		= h;
+		this._plugin.onResize(w, h);
+	},
+	onTimer : function () {
+		this._plugin.onTimer();
+	},
+	onKeydown : function (key) {
+		this._plugin.onKeydown(key);
+	},
+	onMidi : function (a1, a2, a3) {
+		this._plugin.onKeydown();
+	}
+};
+
+
 //////////////////////////////////////////
 // JSdrome definition
 var JSdrome = function() {
 
-	// CSS init
-	$('body')
-	.css({
-		backgroundColor: '#000',
-		margin: 0,
-		padding: 0
-	});
-
-	$('#jsdrome')
-	.css({
-		margin: 0,
-		padding: 0
-	});
-
 	// plugin array
+	this._plugin = Nwdrome.getInstance();
 	this.plugin = [[],[]];
 	this.commonPlugin = [];
 	this.selPluginA = 0;
@@ -160,12 +299,12 @@ JSdrome.prototype.init = function(stream) {
 				self.release = Math.max(sum, self.release - 0.005);
 				var sum2 = self.release;
 				if (mean > 1.0) mean = 1.0;
-				if (self.activeA)
-					self.plugin[0][self.selPluginA].onAudio(sum2, mean);
-				if (self.activeB)
-					self.plugin[1][self.selPluginB].onAudio(sum2, mean);
-				for (var j = 0; j < self.commonPlugin.length; j++)
-					self.commonPlugin[j].onAudio(sum2, mean);
+				// if (self.activeA)
+				// 	self.plugin[0][self.selPluginA].onAudio(sum2, mean);
+				// if (self.activeB)
+				// 	self.plugin[1][self.selPluginB].onAudio(sum2, mean);
+				// for (var j = 0; j < self.commonPlugin.length; j++)
+				// 	self.commonPlugin[j].onAudio(sum2, mean);
 			}
 			buf0[i] = 0; //inbuf0[i];
 			buf1[i] = 0; //inbuf1[i];
@@ -272,7 +411,7 @@ JSdrome.prototype.setFade = function(fade) {
 		this.commonPlugin[i].onFade(fade);
 }
 
-/* 
+/*
 	keydown event handler
 
 	1234567890: select plugin for source A
@@ -490,9 +629,13 @@ JSdrome.prototype.onMidi = function(a1, a2, a3) {
 	}
 
 	if (this.fade >= 0.5)
-		this.plugin[0][this.selPluginA].onMidi(a1, a2, a3);
+		if (this.plugin[0][this.selPluginA]) {
+			this.plugin[0][this.selPluginA].onMidi(a1, a2, a3);
+		}
 	else
-		this.plugin[1][this.selPluginB].onMidi(a1, a2, a3);
+		if (this.plugin[1][this.selPluginB]) {
+			this.plugin[1][this.selPluginB].onMidi(a1, a2, a3);
+		}
 	for (var i = 0; i < this.commonPlugin.length; i++)
 		this.commonPlugin[i].onMidi(a1, a2, a3);
 
@@ -532,16 +675,47 @@ JSdrome.prototype.addPlugin = function(bank, obj) {
 	}
 }
 
-JSdrome.prototype.addCommonPlugin = function(obj) {
-	this.commonPlugin.push(obj);
-	obj.onStart();
-}
+// JSdrome.prototype.addCommonPlugin = function(obj) {
+// 	this.commonPlugin.push(obj);
+// 	obj.onStart();
+// }
+
+JSdrome.prototype.addRendererPlugin = function (factory) {
+	var plugin = this._plugin.addRendererPlugin(factory),
+		instance1 = new NwdromeJSdromePlugger(plugin.id),
+		instance2 = new NwdromeJSdromePlugger(plugin.id);
+
+	this.addPlugin(0, instance1);
+	this.addPlugin(1, instance2);
+
+	instance1.onStop();
+	instance2.onStop();
+};
+
+JSdrome.prototype.addCommonPlugin = function (factory) {
+	if (typeof factory === "function") {
+		// if function passed, use nwdrome plugin container
+		var plugin = this._plugin.addCommonPlugin(factory),
+			instance = new NwdromeJSdromePlugger(plugin.id);
+
+		this.addCommonPlugin(instance);
+	}
+	else {
+		this.commonPlugin.push(factory);
+		factory.onStart();
+	}
+};
+
+JSdrome.prototype.addEffectorPlugin = function (factory) {
+	this._plugin.addEffectorPlugin(factory);
+};
 
 //////////////////////////////////////////
 
 
 // generate JSdrome instance
-app = new JSdrome();
+app = window.app =  window.nwdrome = new JSdrome();
+console.log(app);
 
 
 
@@ -567,5 +741,4 @@ $(window).keyup(function(e){ app.onKeyup(e); });
 	window.requestAnimationFrame(timerloop);
 }());
 
-
-});
+}());
