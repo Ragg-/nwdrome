@@ -51,12 +51,12 @@ $ ->
 
         _init : ->
             # Initialize JSdrome
-            $("#jsdrome-frame").attr "src", "core/index.html"
-            @$subWindow = $ $("#jsdrome-frame")[0]?.contentWindow
-
-            @$subWindow.on "DOMContentLoaded", ->
-                App._jsdrome = window.app = @app
-                App._loaded.resolve App
+            $subWindow = $("#jsdrome-frame")
+            $subWindow
+                .attr "src", "core/index.html"
+                .on "load", ->
+                    App._jsdrome = window.app = @contentWindow.nwdrome
+                    App._loaded.resolve App
 
 
             # Initialize audio device list
@@ -129,7 +129,7 @@ $ ->
                         dfd.resolve gotStream
 
                 dfd.done (stream) ->
-                    App._jsdrome.init stream
+                    App.getJSdrome().setAudioInputSource stream
                     console.log "stream re-initialized"
 
             faderChanged : (opacity) ->

@@ -318,11 +318,13 @@ JSdrome.prototype.setAudioInputSource = function (mediaStream) {
         return;
 	}
 
+	var mss = this.ctx.createMediaStreamSource(mediaStream);
+
     // Change audio input
     this.mic.disconnect(this.preGain);
 	this.mic = null;
 
-    this.mic = mediaStream;
+    this.mic = mss;
     this.mic.connect(this.preGain);
 }
 
