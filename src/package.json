@@ -1,5 +1,13 @@
 {
-    "name"          : "jsdrome-nw",
-    "main"          : "bootstrap.html",
-    "chromium-args" : "--enable-web-midi"
+    "name"          : "nwdrome",
+    "main"          : "nwdrome.html",
+    "chromium-args" : "--enable-web-midi",
+
+    "window" : {
+        "width" : 1000,
+        "height": 600,
+        "min_width" : 1000,
+        "min_height": 600,
+        "toolbar": false
+    }
 }
