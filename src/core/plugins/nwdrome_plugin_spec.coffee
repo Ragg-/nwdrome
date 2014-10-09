@@ -25,7 +25,7 @@
 ##
 # Renderer plugin (& common plugin) structure
 #
-JSdrome.addRendererPlugin ->
+JSdrome.addRendererPlugin (pluginConfig)->
     class RendererPlugin
 
         # Plugin detail setting to instance or prototype
@@ -79,7 +79,7 @@ JSdrome.addRendererPlugin ->
 ##
 # Effector plugin structure
 #
-JSdrome.addEffectorPlugin ->
+JSdrome.addEffectorPlugin (pluginConfig)->
     class EffectorPlugin
 
         # Plugin detail setting to instance or prototype
