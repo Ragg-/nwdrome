@@ -1,6 +1,6 @@
 {
     "name"          : "nwdrome",
-    "main"          : "nwdrome.html",
+    "main"          : "main.html",
     "chromium-args" : "--enable-web-midi",
 
     "window" : {

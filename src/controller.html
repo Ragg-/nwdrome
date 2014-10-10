@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<!--
+ This program is licensed under the MIT License.
+ Copyright 2014, aike (@aike1000)
+-->
+<head>
+	<meta charset="UTF-8">
+	<title>JSdrome</title>
+
+	<script src="thirdparty/jquery-2.1.0.min.js"></script>
+	<script src="thirdparty/require.js" data-main="controller.require-config.js"></script>
+
+	<script src="core/js/three.min.js"></script>
+	<script src="core/js/midiinterface.js"></script>
+	<script src="core/js/ringbuffer.js"></script>
+	<script src="core/js/rompler.js"></script>
+
+	<script type="text/nwdrome-plugin" src="nwdrome_plugin/common/control/control.js"></script>
+	<script type="text/nwdrome-plugin" src="nwdrome_plugin/renderer/nwdrome_spectrum/spectrum.js"></script>
+
+	<!--
+	<script type="text/nwdrome-plugin" src="core/plugins/common/controlwindow.js"></script>
+	<script type="text/nwdrome-plugin" src="core/plugins/common/musicplayer.js"></script>
+	<script type="text/nwdrome-plugin" src="core/plugins/common/logo.js"></script>
+	<script type="text/nwdrome-plugin" src="core/plugins/common/camera.js"></script>
+
+	<script type="text/nwdrome-plugin" src="core/plugins/3d-cube.js"></script>
+	<script type="text/nwdrome-plugin" src="core/plugins/3d-wave.js"></script>
+	<script type="text/nwdrome-plugin" src="core/plugins/3d-lissajous.js"></script>
+	<script type="text/nwdrome-plugin" src="core/plugins/3d-matrix.js"></script>
+	<script type="text/nwdrome-plugin" src="core/plugins/3d-stardust.js"></script>
+	<script type="text/nwdrome-plugin" src="core/plugins/danmaku.js"></script>
+	<script type="text/nwdrome-plugin" src="core/plugins/videoplayer.js"></script>
+	<script type="text/nwdrome-plugin" src="core/plugins/dummy.js"></script>
+	 -->
+	<style>
+		html, body, #nwdrome_container {
+			background-color: #000;
+			margin: 0;
+			padding: 0;
+			width: 100%;
+			height: 100%;
+		}
+
+		#nwdrome_dest {
+			position: absolute;
+			top: 0;
+			left: 0;
+		}
+	</style>
+</head>
+
+<body>
+<div id="nwdrome_container"></div>
+</body>
+</html>

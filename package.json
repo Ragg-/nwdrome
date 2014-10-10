@@ -1,11 +1,11 @@
 {
-  "name": "nw-jsdrome",
+  "name": "nwdrome",
   "version": "0.0.1",
   "description": "jsdrome on NodeWebkit",
-  "homepage": "https://github.com/Ragg-/jsdrome-nw/",
+  "homepage": "https://github.com/Ragg-/nwdrome/",
   "author": "Ragg (https://github.com/Ragg-/)",
   "issues": {
-    "url": "https://github.com/Ragg-/jsdrome-nw/issues"
+    "url": "https://github.com/Ragg-/nwdrome/issues"
   },
   "licenses": [
     {
@@ -14,12 +14,12 @@
     },
     {
       "type": "MIT",
-      "url": "https://github.com/Ragg-/jsdrome-nw/blob/master/LICENSE"
+      "url": "https://github.com/Ragg-/nwdrome/blob/master/LICENSE"
     }
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Ragg-/jsdrome-nw.git"
+    "url": "https://github.com/Ragg-/nwdrome.git"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
