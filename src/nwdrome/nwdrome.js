@@ -51,20 +51,22 @@ define(function (require, exports, module) {
 	Nwdrome.prototype.constructor = Nwdrome;
 
 	Nwdrome.prototype.notifyResize    = function (width, height) {
+        this.emit("resize", width, height);
 		this.mixer.notifyResize(width, height);
 		this.plugin.notifyResize(width, height);
 	};
 
 	Nwdrome.prototype.notifyMidi      = function (a1, a2, a3) {
+        this.emit("midiInput", a1, a2, a3);
 		this.mixer.notifyMidi(a1, a2, a3);
 		this.plugin.notifyMidi(a1, a2, a3);
 	};
 
 	Nwdrome.prototype.notifyKeydown   = function (keyState) {
-		//keyState.keyCode;
+		this.emit("keydown", keyState);
 		this.mixer.notifyKeydown(keyState);
 		this.plugin.notifyKeydown(keyState);
-	}
+	};
 
 	module.exports = Nwdrome;
 });
