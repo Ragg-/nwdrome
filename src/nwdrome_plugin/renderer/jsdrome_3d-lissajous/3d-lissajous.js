@@ -155,7 +155,6 @@ nwdrome.plugin.addRenderer(function (config) {
 
     Lissajous.prototype.onAudio = function(moment, period) {
     //	this.camera.position = new THREE.Vector3(0, 0, 12 - 4 * moment);
-        console.log("");
         this.boost = moment;
         this.up = period;
     }
