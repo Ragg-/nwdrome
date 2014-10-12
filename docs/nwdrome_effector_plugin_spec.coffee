@@ -56,7 +56,8 @@ nwdrome.plugin.addEffector (pluginConfig)->
         onResize    : (width, height) ->
             # Be notified of canvas size change.
 
-        onTimer     : ->
+        # @param HTMLCanvasElement[]  plugin destination canvases.
+        onTimer     : (activePluginDestination)->
             # Call from nwdrome when requestAnimationFrame fired.
             # Will rendering process write here.
 
