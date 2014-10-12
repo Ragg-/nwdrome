@@ -45,6 +45,11 @@ define(function (require, exports, module) {
 			self.mixer.addPlugin(0, Plugin);
 			self.mixer.addPlugin(1, Plugin);
 		});
+
+        this.audio.on("processed", function (moment, mean) {
+            self.mixer.notifyAudio(moment, mean);
+            self.plugin.notifyAudio(moment, mean);
+        });
 	}
 
 	Nwdrome.prototype = Object.create(EventEmitter2.prototype);

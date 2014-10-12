@@ -35,6 +35,8 @@ define(function (require, exports, module) {
         this._pluginInfoCache = {};
 
         this._activatedCommons = {};
+
+        console.warn("Notice: Common plugin's #onAudio method is deplecated.");
     }
 
     NwdromePlugin.COMMON_BEFORE_FILTER  = "before";
@@ -160,6 +162,13 @@ define(function (require, exports, module) {
 
     NwdromePlugin.prototype.getEffector = function (pluginId) {
         return this._getPlugin("effector", pluginId);
+    };
+
+
+    NwdromePlugin.prototype.notifyAudio     = function (moment, period) {
+        for (var i in this._activatedCommons) {
+            this._activatedCommons[i].onResize(moment, period);
+        }
     };
 
 
