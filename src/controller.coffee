@@ -29,13 +29,7 @@ requirejs ["nwdrome/nwdrome"], (Nwdrome) ->
                 , 100
 
         .on "keydown", (e) ->
-            nwdrome.notifyKeydown
-                keyCode : e.keyCode
-                shift   : e.shiftKey
-                alt     : e.altKey
-
-                # if in MacOSX use e.metaKey instead of e.ctrlKey
-                ctrl    : if navigator.platform is "MacIntel" then e.metaKey else e.ctrlKey
+            nwdrome.notifyKeydown e
 
 
         .trigger "resize"
