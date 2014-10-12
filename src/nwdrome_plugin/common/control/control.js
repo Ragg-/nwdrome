@@ -44,7 +44,7 @@ nwdrome.plugin.addCommon(function(config) {
 
 
         this.descCommon = $('<div>')
-            .attr({ id: this.id + '_com' })
+            .attr("id", this.id + '_com')
             .css({
                 position: 'absolute',
                 top: 500,
@@ -53,6 +53,7 @@ nwdrome.plugin.addCommon(function(config) {
                 fontSize: 12
             })
             .appendTo(this.$root);
+
 
         this.cursor = new Array(2);
         this.thumbWidth = 70 + 10 * 80 + 9 * 10 + 20;
@@ -65,6 +66,11 @@ nwdrome.plugin.addCommon(function(config) {
         nwdrome.mixer.on("fadeChanged", function (fade) {
             self.onFade(fade);
         });
+        nwdrome.mixer.on("selectionChanged", function (selection) {
+            self.setCursor(selection.bank);
+            //self.showPluginDescription(selection.bank === 0);
+            self.showAllDescription();
+        });
         this.onFade(nwdrome.mixer.getFade());
     };
 
@@ -75,6 +81,7 @@ nwdrome.plugin.addCommon(function(config) {
         + "  Audio insensitive\n"
         + "  [return] control window on/off\n";
 
+    // Initialize thumbnails & fader container
     MiniWindow.prototype.initThumbArea = function(id) {
 
         var elem = $('<div>')
@@ -150,9 +157,9 @@ nwdrome.plugin.addCommon(function(config) {
             var bank = $(this).attr('deck') | 0;
             var pos = $(this).attr('pos') | 0;
 
-            self.setCursor(bank, nwdrome.mixer.getFade());
+            //self.setCursor(bank, nwdrome.mixer.getFade());
             nwdrome.mixer.selectPlugin(bank, pos);
-            self.showAllDescription();
+            //self.showAllDescription();
         }
 
         for (i = 0, l = decks.length; i < l; i++) {
@@ -196,7 +203,7 @@ nwdrome.plugin.addCommon(function(config) {
                     top: 8 + i * 124,
                     left: 110 + j * 90,
                     color: '#bbbbbb',
-                    fontSize: 9
+                    fontSize: 12
                 })
                 .text(this.key[i][j])
                 .appendTo(divId);
@@ -214,6 +221,7 @@ nwdrome.plugin.addCommon(function(config) {
         this.setCursor(1, nwdrome.mixer.getFade());
     };
 
+
     // Create plugin description area
     MiniWindow.prototype.createDescArea = function(id) {
         var $div = $('<div>')
@@ -227,6 +235,8 @@ nwdrome.plugin.addCommon(function(config) {
             .attr("id", id + '1')
             .css({
                 color: '#fff',
+                backgroundColor: '#000',
+                padding: '4px',
                 marginBottom: 8,
                 font: "bold 18px 'Times New Roman'",
                 letterSpacing: ".05em"
@@ -237,9 +247,12 @@ nwdrome.plugin.addCommon(function(config) {
             .attr({ id: id + '2'})
             .css({
                 color: '#fff',
+                backgroundColor: '#000',
+                padding: '4px 4px 8px',
                 font: "14px/1.1 sans-serif",
                 letterSpacing: ".06em"
-            }).appendTo($div);
+            })
+        .appendTo($div);
 
         return $div;
     };
@@ -321,8 +334,8 @@ nwdrome.plugin.addCommon(function(config) {
 
     MiniWindow.prototype.onFade = function(opa) {
         // Expect call from mixer#fadeChanged event listener;
-        this.descA.css({opacity: 0.3 + opa});
-        this.descB.css({opacity: 0.3 + (1.0 - opa)});
+        this.descA.css({opacity: 0.4 + opa});
+        this.descB.css({opacity: 0.4 + (1.0 - opa)});
 
         this.setCursor(0, opa);
         this.setCursor(1, opa);
@@ -333,6 +346,23 @@ nwdrome.plugin.addCommon(function(config) {
     MiniWindow.prototype.onAudio    = noop;
 
     MiniWindow.prototype.onKeydown = function(keyState) {
+        if (keyState.keyCode === 13) {
+            this.enable = ! this.enable;
+
+            if (this.enable) {
+                this.descCommon.css({ display: 'block' });
+                this.descA.css({ display: 'block' });
+                this.descB.css({ display: 'block' });
+                this.thumb.css({ display: 'block' });
+            } else {
+                this.descCommon.css({ display: 'none' });
+                this.descA.css({ display: 'none' });
+                this.descB.css({ display: 'none' });
+                this.thumb.css({ display: 'none' });
+            }
+        }
+
+        /*
         switch (keyState.keyCode) {
 
         case 13:		// return
@@ -382,6 +412,7 @@ nwdrome.plugin.addCommon(function(config) {
             this.setCursor(1, nwdrome.mixer.getFade());
             break;
         }
+        */
     };
 
     MiniWindow.prototype.onResize = noop;
