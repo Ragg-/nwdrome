@@ -110,9 +110,9 @@ define(function (require, exports, module) {
     NwdromeAudio.prototype.constructor = EventEmitter2;
 
     // Properties
-    NwdromeAudio.prototype.sensitivity = 5,
-    NwdromeAudio.prototype.meancount   = 0,
-    NwdromeAudio.prototype.release     = 0,
+    NwdromeAudio.prototype.sensitivity = 5; // 20
+    NwdromeAudio.prototype.meancount   = 0;
+    NwdromeAudio.prototype.release     = 0;
     NwdromeAudio.prototype.analyzer    = null;
 
 
@@ -128,6 +128,18 @@ define(function (require, exports, module) {
             console.log
         }
     };
+
+    NwdromeAudio.prototype.setSensitivity = function (value) {
+        value < 0 && (value = 0);
+        value > 20 && (value = 20);
+        this.sensitivity = value | 0;
+        this._preGain.gain.value = value / 20;
+    };
+
+    NwdromeAudio.prototype.getSensitivity = function () {
+        return this.sensitivity;
+    };
+
 
     return NwdromeAudio;
 });
