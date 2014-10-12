@@ -131,7 +131,7 @@ nwdrome.plugin.addCommon(function(config) {
                 height: 20,
                 transform: 'rotate(-90deg)'
             })
-            .on('change', function(){
+            .on('input', function(){
                 nwdrome.mixer.setFade(this.value / 100);
             })
             .appendTo(elem);
