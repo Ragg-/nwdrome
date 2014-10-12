@@ -2,6 +2,7 @@
 
 // This program is licensed under the MIT License.
 // Copyright 2014, aike (@aike1000)
+// Port to nwdrome by Ragg(@_ragg_)
 
 nwdrome.plugin.addRenderer(function (config) {
     // Plugin information
