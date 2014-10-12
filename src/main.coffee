@@ -1,156 +1,132 @@
 requirejs [], () ->
+    nw = window.require 'nw.gui'
+
+    ######
+    # Initialize Node-Webkit
+    do ->
+        nwWin = nw.Window.get()
+        debugMode = (nw.App.argv.indexOf "--debug") isnt -1
+
+        # Open developer tools
+        if debugMode
+            nwWin.on "devtools-closed", -> nwWin.showDevTools()
+            nwWin.showDevTools()
+
+
+        # Handling exception
+        uncaughtCallback = (ex) ->
+            console.groupCollapsed? "%cUncaught exception: #{ex.message}", "color:red"
+            console.debug "%c#{ex.message}", "color:red"
+            console.debug "%cStack\n#{ex.stack}", "color:red"
+            console.groupEnd?()
+
+        process.on "uncaughtException", uncaughtCallback
+        #window.onerror = uncaughtCallback
+
+        window.addEventListener "beforeunload", ->
+            process.removeListener "uncaughtException", uncaughtCallback
+            console.log "Exception listener dispose successfully"
+            return
+        , false
+
+    ######
+    # Initialize window gui
     $ ->
-        nw = window.require 'nw.gui'
+        externalWindow = nw.Window.open "view.html",
+            frame: false
+            show : false
+            toolbar : false
+
+        nwdromeWindow = document.getElementById("nwdrome-frame").contentWindow
+
+        $e =
+            # Audio source list
+            audioSourceList : $ "#nwdm-audioSources"
+
+            # External window open button
+            externalOpenner : $ "#nwdm-externalWindow"
+
+        $window = $(window)
+
+        getNwdrome = ->
+            nwdromeWindow.nwdrome
+
+
+        # Listup all media sources to pulldown
+        MediaStreamTrack.getSources (sources) ->
+            $.each sources, () ->
+                if this.kind isnt "audio"
+                    return
+
+                $ "<option>"
+                    .val this.id
+                    .text this.label
+                    .appendTo $e.audioSourceList
+                return
+            return
+
+
+        # event: External window has closing
+        externalWindow.on "close", ->
+            $ "#nwdrome_container", nwdromeWindow
+                .append getNwdrome().mixer.getDestination()
+            return
+
+
+        # event: Audio source changed
+        $e.audioSourceList.on "change", ->
+            this.blur()
+
+            conf =
+                audio :
+                    optional : [
+                        sourceId: @value
+                    ]
+
+            navigator.webkitGetUserMedia conf, (stream) ->
+                getNwdrome().audio.setAudioInput stream
+                console.info "Successfully input source change."
+
+            return
+
+
+        # event: Request open exeternal window
+        $e.externalOpenner.on "click", ->
+            canvas = getNwdrome().mixer.getDestination()
+
+            externalWindow.window.document.body.appendChild canvas
+            externalWindow.show()
+            canvas = null
+            return
+
+
+        # event: Reloading
+        $("#nwdm-reload").on "click", ->
+            location.reload()
+
+
+        # event: Delegate any key inputs to nwdrome window
+        $window.on "keydown", (e) ->
+            nwdromeWindow.dispatchEvent e.originalEvent
+            return
+
+
+        # event: Destruct main window
+        $window.on "beforeunload", ->
+            externalWindow.close()
+            externalWindow = undefined
+
 
         ###
-        # Initialize Node-Webkit
+
+        _events :
+
+            fading : ->
+                App._nwdrome?.mixer.setFade @value / 100
+
+            faderChanged : (opacity) ->
+                App._el.$c_fader[0].value = (opacity * 100) | 0
+                return
         ###
-        do ->
-            nwWin = nw.Window.get()
-            debugMode = (nw.App.argv.indexOf "--debug") isnt -1
 
-            # Open developer tools
-            if debugMode
-                nwWin.on "devtools-closed", -> nwWin.showDevTools()
-                nwWin.showDevTools()
-
-
-            # Handling exception
-            uncaughtCallback = (ex) ->
-                console.groupCollapsed? "%cUncaught exception: #{ex.message}", "color:red"
-                console.debug "%c#{ex.message}", "color:red"
-                console.debug "%cStack\n#{ex.stack}", "color:red"
-                console.groupEnd?()
-
-            process.on "uncaughtException", uncaughtCallback
-            window.onerror = uncaughtCallback
-
-            window.addEventListener "beforeunload", ->
-                process.removeListener "uncaughtException", uncaughtCallback
-                console.log "Exception listener dispose successfully"
-                return
-            , false
-
-
-        ###
-        # Initialize App
-        ###
-        App =
-            _nwdrome : null
-            _exWindow: null
-
-            _loaded  : $.Deferred()
-
-            _el      :
-                $c_audioSources     : $ "#jdnw-audioSources"
-                $c_externalWindow   : $ "#jdnw-externalWindow"
-                $c_fader            : $ "#jdnw-fade"
-                $subWindow : null
-
-            _sources : {}
-
-            _init : ->
-                # Initialize JSdrome
-                @_el.$subWindow = $("#nwdrome-frame")
-                    .attr "src", "controller.html"
-                    .on "load", ->
-                        #App._nwdrome = window.app =
-                        #App._loaded.resolve App
-
-
-                # Initialize audio device list
-                MediaStreamTrack.getSources (sources) ->
-                    sources.forEach (source) ->
-                        App._sources[source.id] = source
-                        return
-
-                    $.each App._sources, () ->
-                        if this.kind isnt "audio"
-                            return
-
-                        $ "<option>"
-                            .val this.id
-                            .text this.label
-                            .appendTo App._el.$c_audioSources
-                        return
-
-                    return
-
-                # Initialize DOM event listeners
-                @_el.$c_audioSources.on "change", @_events.onSourceChanged
-                $(window)
-                    .on "keyup", @_events.delegateKeyup
-                    .on "keydown", @_events.delegateKeydown
-
-                @_el.$c_externalWindow.on "click", @_events.showInExternal
-
-                @_el.$c_fader.on "change", @_events.fading
-
-                console.log "Initialized"
-                return
-
-
-            getNwdrome : ->
-                return @_el.$subWindow[0].contentWindow.nwdrome
-
-
-            waitForInit : (fn) ->
-                @_loaded.done fn
-                return
-
-
-            reload : ->
-                nw.Window.get().reload()
-                return
-
-            _events :
-                showInExternal : ->
-                    if App._exWindow?
-                        App._exWindow.open()
-                    else
-                        App._exWindow = nw.Window.open 'view.html', frame : false
-
-                fading : ->
-                    App._nwdrome?.mixer.setFade @value / 100
-
-
-                delegateKeyup : (e) ->
-                    App._nwdrome?.onKeyup e
-                    return
-
-
-                delegateKeydown : (e) ->
-                    App._nwdrome?.onKeydown e
-                    return
-
-
-                onSourceChanged : (e) ->
-                    this.blur()
-
-                    dfd = $.Deferred()
-                    sourceId = e.target.value
-                    conf =
-                        audio :
-                            optional : [{sourceId}]
-
-                    if App._sources[sourceId].stream?
-                        dfd.resolve App._sources[sourceId].stream
-                    else
-                        navigator.webkitGetUserMedia conf, (gotStream) ->
-                            App._sources[sourceId].stream = gotStream
-                            dfd.resolve gotStream
-
-                    dfd.done (stream) ->
-                        App.getNwdrome().audio.setAudioInput stream
-                        console.info "Successfully input source change."
-
-                    return
-
-
-                faderChanged : (opacity) ->
-                    App._el.$c_fader[0].value = (opacity * 100) | 0
-                    return
-
-
-        App._init()
         console.info "App initialized."

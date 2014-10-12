@@ -70,20 +70,20 @@
     <div id="wrap">
         <div id="control">
             <div class="group">
-                Audio in: <select id="jdnw-audioSources"></select>
+                Audio in: <select id="nwdm-audioSources"></select>
             </div>
             <div class="group">
-                <button id="jdnw-externalWindow">Show in External Window</button>
+                <button id="nwdm-externalWindow">Show in External Window</button>
             </div>
             <div class="group ">
-                <input id="jdnw-fade" type="range" min="0" max="100" step="1">
+                <input id="nwdm-fade" type="range" min="0" max="100" step="1">
             </div>
             <div class="group right">
-                <button onclick="jsdrome_nw.reload()">reload</button>
+                <button id="nwdm-reload">reload</button>
             </div>
         </div>
 
-        <iframe id="nwdrome-frame"></iframe>
+        <iframe id="nwdrome-frame" src="controller.html"></iframe>
     </div>
 </body>
 </html>
