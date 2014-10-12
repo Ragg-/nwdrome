@@ -227,9 +227,14 @@ define(function (require, exports, module) {
     };
 
     NwdromeMixer.prototype.notifyKeydown   = function (keyState) {
-        //keyState.keyCode;
-        this._bank[0].notifyKeydown(keyState.keyCode);
-        this._bank[1].notifyKeydown(keyState.keyCode);
+        if (navigator.platform === "MacIntel") {
+            keyState.shift && this._bank[0].notifyKeydown(keyState.keyCode);
+            keyState.alt && this._bank[1].notifyKeydown(keyState.keyCode);
+        }
+        else {
+            keyState.shift && this._bank[0].notifyKeydown(keyState.keyCode);
+            keyState.ctrl && this._bank[1].notifyKeydown(keyState.keyCode);
+        }
     };
 
     return NwdromeMixer;

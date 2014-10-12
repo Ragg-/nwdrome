@@ -31,7 +31,7 @@ requirejs ["nwdrome/nwdrome"], (Nwdrome) ->
                 , 100
 
         .on "keydown", (e) ->
-            nwdrome.notifyKeydown e
+            nwdrome.notifyKeydown e.originalEvent
 
 
     $ ->

@@ -84,9 +84,51 @@ define(function (require, exports, module) {
             };
         }
 
-		this.emit("keydown", keyState);
-		this.mixer.notifyKeydown(keyState);
-		this.plugin.notifyKeydown(keyState);
+        this.emit("keydown", keyState);
+
+        if (keyState.shift || keyState.alt || keyState.ctrl) {
+            this.mixer.notifyKeydown(keyState);
+            this.plugin.notifyKeydown(keyState);
+            return;
+        }
+
+        //-- Key bindings in below
+        // First level key hook
+        var keyCode = keyState.keyCode,
+            pos;
+
+        if ((pos = [49, 50, 51, 52, 53, 54, 55, 56, 57, 48].indexOf(keyCode)) !== -1) {
+            // 123...90 keys
+            this.mixer.selectPlugin(0, pos);
+        }
+        else if ((pos = [81, 87, 69, 82, 84, 89, 85, 73, 79, 80].indexOf(keyCode)) !== -1) {
+            // QWE...OP keys
+            this.mixer.selectPlugin(1, pos);
+        }
+
+        switch (keyCode) {
+            case 65:
+                // A key
+                this.mixer.setFade(this.mixer.getFade() + 0.05);
+                break;
+
+            case 90:
+                // Z key
+                this.mixer.setFade(this.mixer.getFade() - 0.05);
+                break;
+
+            case 83:
+                // S key
+                var value = this.audio.getSensitivity();
+                this.audio.setSensitivity(++value);
+                break;
+
+            case 88:
+                // X key
+                var value = this.audio.getSensitivity();
+                this.audio.setSensitivity(--value);
+                break;
+        }
 	};
 
 	module.exports = Nwdrome;

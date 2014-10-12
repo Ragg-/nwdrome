@@ -102,6 +102,8 @@ requirejs [], () ->
             navigator.webkitGetUserMedia conf, (stream) ->
                 getNwdrome().audio.setAudioInput stream
                 console.info "Successfully input source change."
+            , (e) ->
+                console.error e
 
             return
 
@@ -126,7 +128,7 @@ requirejs [], () ->
 
         # event: Delegate any key inputs to nwdrome window
         $window.on "keydown", (e) ->
-            nwdromeWindow.dispatchEvent e.originalEvent
+            getNwdrome().notifyKeydown e.originalEvent
             return
 
 
