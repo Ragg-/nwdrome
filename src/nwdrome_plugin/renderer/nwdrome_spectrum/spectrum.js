@@ -8,7 +8,9 @@ nwdrome.plugin.addRenderer(function(config) {
 
     nwdmSpectrum.id = "nwdrome.spectrum";
     nwdmSpectrum.thumbnail = "";
-    nwdmSpectrum.description = "Audio spectrum Plugin";
+    nwdmSpectrum.description =
+        "Audio spectrum Plugin\n"
+        + "Twin-mirrored spectrum wave";
 
     nwdmSpectrum.prototype.onStart = noop;
     nwdmSpectrum.prototype.onStop = noop;
@@ -24,8 +26,8 @@ nwdrome.plugin.addRenderer(function(config) {
 
     nwdmSpectrum.prototype.onTimer = function() {
         var baseLine, pointInterval, maxWaveHeight, samples, i, l, y;
-        var c = this._canvas;
-            c_ctx = this._ctx;
+        var c = this._canvas,
+            c_ctx = this._ctx,
             an = nwdrome.audio.analyzer;
 
         samples = new Uint8Array(an.fftSize);
