@@ -24,6 +24,10 @@ define(function (require, exports, module) {
 		this.plugin = new NwdromePlugin();
 		this.audio 	= new NwdromeAudio();
 		this.mixer 	= new NwdromeMixer();
+        this.lib    = {
+            EventEmitter2 : EventEmitter2,
+            RingBuffer    : require("./lib/jsdrome/ringbuffer")
+        };
 
 		var self = this;
 
