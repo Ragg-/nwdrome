@@ -133,14 +133,16 @@ define(function (require, exports, module) {
     NwdromeMixer.prototype.addPlugin       = function (bank, constructor) {
         var bank = this._bank[bank];
         bank && bank.addPlugin(constructor);
+        this.emit("pluginAdded", {bank: bank, pluginId: constructor.id});
     };
+
     NwdromeMixer.prototype.selectPlugin    = function (bankNum, num) {
         var bank = this._bank[bankNum];
         if (bank) {
             bank.selectPlugin(num);
             bank.notifyResize(this._dest.width, this._dest.height);
+            this.emit("selectionChanged", {bank: bankNum, index: num});
         }
-
     };
 
     NwdromeMixer.prototype.addEffector     = function (Effector, order) {
