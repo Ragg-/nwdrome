@@ -83,7 +83,7 @@ define(function (require, exports, module) {
 
         this._effector = [];
 
-        this._fade = 0; // 0: [0], 1: [1]
+        this._fade = 0; // value 0: activateBank[0]; value 1: activateBank[1]
         this._dest = document.createElement("canvas");
         this._destCtx = this._dest.getContext("2d");
     }
@@ -194,10 +194,12 @@ define(function (require, exports, module) {
 
         ctx.clearRect(0, 0, dest.width, dest.height);
 
-        c2 && (ctx.globalAlpha = Math.cos(fade * 0.5 * Math.PI));
+        ctx.globalAlpha = 1;
+        c2 != null && (ctx.globalAlpha = Math.cos((1 - fade) * 0.5 * Math.PI));
         c1 && ctx.drawImage(c1, 0, 0);
 
-        c1 && (ctx.globalAlpha = Math.cos((1 - fade) * 0.5 * Math.PI));
+        ctx.globalAlpha = 1;
+        c1 != null && (ctx.globalAlpha = Math.cos(fade * 0.5 * Math.PI));
         c2 && ctx.drawImage(c2, 0, 0);
 
         ctx.globalAlpha = 1;
