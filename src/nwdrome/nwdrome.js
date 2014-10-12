@@ -63,6 +63,18 @@ define(function (require, exports, module) {
 	};
 
 	Nwdrome.prototype.notifyKeydown   = function (keyState) {
+        if (keyState instanceof KeyboardEvent) {
+            keyState = {
+                keyCode : keyState.keyCode,
+                shift   : keyState.shiftKey,
+                alt     : keyState.altKey,
+
+                // if in MacOSX use e.metaKey instead of e.ctrlKey
+                // ignore metaKey on windows
+                ctrl    : navigator.platform === "MacIntel" ? keyState.metaKey : keyState.ctrlKey
+            };
+        }
+
 		this.emit("keydown", keyState);
 		this.mixer.notifyKeydown(keyState);
 		this.plugin.notifyKeydown(keyState);
