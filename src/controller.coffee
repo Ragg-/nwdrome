@@ -24,20 +24,22 @@ requirejs ["nwdrome/nwdrome"], (Nwdrome) ->
                     clearTimeout timerId
 
                 timerId = setTimeout ->
-                    nwdrome.mixer.notifyResize $window.width(), $window.height()
-                    timerId = null
+                    if canvas.inExternal is true
+                    else
+                        nwdrome.notifyResize $window.width(), $window.height()
+                        timerId = null
                 , 100
 
         .on "keydown", (e) ->
             nwdrome.notifyKeydown e
 
 
-        .trigger "resize"
-
     $ ->
         canvas.id = "nwdrome_dest";
         document.getElementById "nwdrome_container"
             .appendChild canvas
+
+        $window.trigger "resize"
 
         # Running render process
         renderProcess = ->

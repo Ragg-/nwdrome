@@ -67,10 +67,26 @@ requirejs [], () ->
 
 
         # event: External window has closing
-        externalWindow.on "close", ->
-            $ "#nwdrome_container", nwdromeWindow
-                .append getNwdrome().mixer.getDestination()
+        externalWindow.on "hide", ->
+            canvas = getNwdrome().mixer.getDestination();
+            canvas.inExternal = false
+
+            $("#nwdrome_container", nwdromeWindow.document)
+                .prepend canvas
             return
+
+
+        # event: External window resize
+        externalWindow.on "resize", do ->
+            timerId = null
+
+            return (w, h) ->
+                if timerId isnt null
+                    clearTimeout timerId
+
+                timerId = setTimeout ->
+                    getNwdrome().notifyResize w, h
+                , 100
 
 
         # event: Audio source changed
@@ -92,9 +108,12 @@ requirejs [], () ->
 
         # event: Request open exeternal window
         $e.externalOpenner.on "click", ->
-            canvas = getNwdrome().mixer.getDestination()
+            nwdrome = getNwdrome()
+            canvas = nwdrome.mixer.getDestination()
+            canvas.inExternal = true
 
             externalWindow.window.document.body.appendChild canvas
+            nwdrome.notifyResize externalWindow.width, externalWindow.height
             externalWindow.show()
             canvas = null
             return
