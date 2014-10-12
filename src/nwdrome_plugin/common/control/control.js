@@ -2,24 +2,18 @@
 
 // This program is licensed under the MIT License.
 // Copyright 2014, aike (@aike1000)
-// Port to nwdrome by Ragg(@_ragg_)
+// Port to nwdrome and modified by Ragg (@_ragg_)
 nwdrome.plugin.addCommon(function(config) {
+    var nwdrome = window.nwdrome;
+
     function noop() {}
 
     var MiniWindow = function(app) {
-        this.app = nwdrome;
-
         this.id = "jsdrome-miniwindow";
         this.key = [['1','2','3','4','5','6','7','8','9','0'],
                     ['Q','W','E','R','T','Y','U','I','O','P']];
 
-        this.descA = this.drawDescArea(this.id + '_textA');
-        this.descB = this.drawDescArea(this.id + '_textB');
-
-        this.descA.css({opacity: 1});
-        this.descB.css({opacity: 0});
-
-        this.root = $('<div>')
+        this.$root = $('<div>')
             .attr({id: this.id})
             .css({
                 position: 'absolute',
@@ -27,7 +21,27 @@ nwdrome.plugin.addCommon(function(config) {
                 left    : 0,
                 right   : 0
             })
-            .appendTo('#nwdrome_container')
+            .appendTo('#nwdrome_container');
+
+        this.descA = this.createDescArea(this.id + '_textA');
+        this.descB = this.createDescArea(this.id + '_textB');
+
+        this.descA
+            .css({
+                top: 160,
+                left: 100,
+                opacity: 1
+            })
+            .appendTo(this.$root);
+
+        this.descB
+            .css({
+                top: 160,
+                left: 300 + 100 + 32,
+                opacity: 1
+            })
+            .appendTo(this.$root);
+
 
         this.descCommon = $('<div>')
             .attr({ id: this.id + '_com' })
@@ -38,115 +52,125 @@ nwdrome.plugin.addCommon(function(config) {
                 color: '#fff',
                 fontSize: 12
             })
-            .appendTo(this.root);
+            .appendTo(this.$root);
 
         this.cursor = new Array(2);
         this.thumbWidth = 70 + 10 * 80 + 9 * 10 + 20;
-        this.thumb = this.drawThumbArea(this.id + '_thmb');
+        this.thumb = this.initThumbArea(this.id + '_thmb');
 
         var self = this;
-        setTimeout(function() { self.drawThumb(); }, 1000);
+        setTimeout(function() { self.initPluginThumb(); }, 1000);
         setTimeout(function() { self.drawCommonDesc(); }, 2000);
 
         nwdrome.mixer.on("fadeChanged", function (fade) {
             self.onFade(fade);
         });
-    }
+        this.onFade(nwdrome.mixer.getFade());
+    };
 
     MiniWindow.id = 'jsdrome.miniwindow';
     MiniWindow.description =
         "MiniWindow\n"
         + "  Make drawing area smaller common plugin\n"
         + "  Audio insensitive\n"
-        + "  [return] full screen on/off\n";
+        + "  [return] control window on/off\n";
 
-    MiniWindow.prototype.drawThumbArea = function(id) {
+    MiniWindow.prototype.initThumbArea = function(id) {
+
         var elem = $('<div>')
-        .attr({ id: id })
-        .css({
-            // position: 'absolute',
-            // top: 10,
-            // left: 100,
-            position: 'relative',
-            margin: '0 auto',
-            width: this.thumbWidth,
-            height: 150,
-            backgroundColor: '#111130'
-        }).appendTo(this.root);
+            .attr({ id: id })
+            .css({
+                // position: 'absolute',
+                // top: 10,
+                // left: 100,
+                position: 'relative',
+                margin: '0 auto',
+                width: this.thumbWidth,
+                height: 150,
+                backgroundColor: '#111130'
+            }).appendTo(this.$root);
 
         this.cursor[0] = $('<div>')
-        .css({
-            position: 'absolute',
-            left: 70 + 0 * 90 - 1,
-            top: 25 + 0 * 55 - 1,
-            width: 80,
-            height: 45,
-            border: 'solid 1px #ddddee',
-            boxShadow: '0 0 5px 5px rgba(127,127,255,0.5)',
-            zIndex: 5
-        }).appendTo(elem);
+            .css({
+                position: 'absolute',
+                left: 70 + 0 * 90 - 1,
+                top: 25 + 0 * 55 - 1,
+                width: 80,
+                height: 45,
+                border: 'solid 1px #ddddee',
+                boxShadow: '0 0 5px 5px rgba(127,127,255,0.5)',
+                zIndex: 5
+            }).appendTo(elem);
 
         this.cursor[1] = $('<div>')
-        .css({
-            position: 'absolute',
-            left: 70 + 0 * 90 - 1,
-            top: 25 + 1 * 55 - 1,
-            width: 80,
-            height: 45,
-            border: 'solid 1px #ddddee',
-            boxShadow: '0 0 5px 5px rgba(127,127,255,0.5)',
-            zIndex: 5
-        }).appendTo(elem);
+            .css({
+                position: 'absolute',
+                left: 70 + 0 * 90 - 1,
+                top: 25 + 1 * 55 - 1,
+                width: 80,
+                height: 45,
+                border: 'solid 1px #ddddee',
+                boxShadow: '0 0 5px 5px rgba(127,127,255,0.5)',
+                zIndex: 5
+            }).appendTo(elem);
 
         var self = this;
         this.xfader = $('<input>')
-        .attr({
-            type: 'range',
-            min: 0,
-            max: 100,
-            step: 1,
-            value: 100
-        })
-        .css({
-            position: 'absolute',
-            top: 60,
-            left: -20,
-            width: 90,
-            height: 20,
-            transform: 'rotate(-90deg)'
-        })
-        .on('input', function(){
-            self.app.mixer.setFade(this.value / 100);
-            //self.app.setFade(self.app.fade);
-        })
-        .appendTo(elem);
-
+            .attr({
+                type: 'range',
+                min: 0,
+                max: 100,
+                step: 1,
+                value: 100
+            })
+            .css({
+                position: 'absolute',
+                top: 60,
+                left: -20,
+                width: 90,
+                height: 20,
+                transform: 'rotate(-90deg)'
+            })
+            .on('change', function(){
+                nwdrome.mixer.setFade(this.value / 100);
+            })
+            .appendTo(elem);
 
         return elem;
-    }
+    };
 
-    MiniWindow.prototype.drawThumb = function() {
-        var divid = '#' + this.id + '_thmb',
-            decks = this.app.mixer.getDeckPluginIds(),
-            self  = this;
+    // Draw plugin thumbnails
+    MiniWindow.prototype.initPluginThumb = function() {
+        var divId = '#' + this.id + '_thmb',
+            decks = nwdrome.mixer.getDeckPluginIds(),
+            self  = this,
+            i, j, l;
 
-        for (var i = 0; i < decks.length; i++) {
-            var pluginIds   = decks[i],
-                jmax        = Math.min(10, pluginIds.length);
+        function thumbClicked() {
+            var bank = $(this).attr('deck') | 0;
+            var pos = $(this).attr('pos') | 0;
 
-            for (var j = 0; j < jmax; j++) {
+            self.setCursor(bank, nwdrome.mixer.getFade());
+            nwdrome.mixer.selectPlugin(bank, pos);
+            self.showAllDescription();
+        }
+
+        for (i = 0, l = decks.length; i < l; i++) {
+            var pluginsOnDeck   = decks[i],
+                jmax            = Math.min(10, pluginsOnDeck.length);
+
+            for (j = 0; j < jmax; j++) {
                 var imagefile   = config.url + 'noimage.png',
-                    pluginInfo  = this.app.plugin.getPluginInfo(pluginIds[j]);
+                    pluginInfo  = nwdrome.plugin.getPluginInfo(pluginsOnDeck[j]);
 
                 if (pluginInfo.thumbnail) {
                     imagefile = pluginInfo.thumbnail;
                 }
 
-
                 $('<img>')
                     .attr({
                         src: imagefile,
-                        ch: i,
+                        deck: i,
                         pos: j
                     })
                     .css({
@@ -159,20 +183,13 @@ nwdrome.plugin.addCommon(function(config) {
                         cursor: 'pointer',
                         zIndex: 10
                     })
-                    .click(function() {
-                        var bank = parseInt($(this).attr('ch'), 10);
-                        var pos = parseInt($(this).attr('pos'), 10);
-
-                        self.setCursor(bank, pos, self.app.mixer.getFade());
-                        self.app.mixer.selectPlugin(bank, pos);
-                        self.showDescription();
-                    })
-                    .appendTo(divid);
+                    .click(thumbClicked)
+                    .appendTo(divId);
             }
         }
 
-        for (var i = 0; i < decks.length; i++) {
-            for (var j = 0; j < this.key[i].length; j++) {
+        for (i = 0; i < decks.length; i++) {
+            for (j = 0; j < this.key[i].length; j++) {
                 $('<div>')
                 .css({
                     position: 'absolute',
@@ -182,120 +199,120 @@ nwdrome.plugin.addCommon(function(config) {
                     fontSize: 9
                 })
                 .text(this.key[i][j])
-                .appendTo(divid);
+                .appendTo(divId);
             }
         }
 
         var selected;
 
-        selected = this.app.mixer.getSelectedPluginIndex(0);
+        selected = nwdrome.mixer.getSelectedPluginIndex(0);
         selected = selected === -1 ? 0 : selected;
-        this.setCursor(0, selected, this.app.mixer.getFade());
+        this.setCursor(0, nwdrome.mixer.getFade());
 
-        selected = this.app.mixer.getSelectedPluginIndex(1);
+        selected = nwdrome.mixer.getSelectedPluginIndex(1);
         selected = selected === -1 ? 0 : selected;
-        this.setCursor(1, selected, this.app.mixer.getFade());
-    }
+        this.setCursor(1, nwdrome.mixer.getFade());
+    };
 
-    MiniWindow.prototype.setCursor = function(ch, pos, opa) {
-        var alpha;
+    // Create plugin description area
+    MiniWindow.prototype.createDescArea = function(id) {
+        var $div = $('<div>')
+            .attr({ id: id })
+            .css({
+                position: 'absolute',
+                width: 300
+            });
 
+        $('<div>')
+            .attr("id", id + '1')
+            .css({
+                color: '#fff',
+                marginBottom: 8,
+                font: "bold 18px 'Times New Roman'",
+                letterSpacing: ".05em"
+            })
+            .appendTo($div);
+
+        $('<div>')
+            .attr({ id: id + '2'})
+            .css({
+                color: '#fff',
+                font: "14px/1.1 sans-serif",
+                letterSpacing: ".06em"
+            }).appendTo($div);
+
+        return $div;
+    };
+
+    // Set active plugin indicator position
+    MiniWindow.prototype.setCursor = function(bank, opa) {
+        var pos = nwdrome.mixer.getSelectedPluginIndex(bank),
+            alpha;
+
+        opa = opa == null ? nwdrome.mixer.getFade() : opa;
         pos = pos < 0 ? 0 : pos;
 
-        if (ch === 0) {
+        if (bank === 0) {
             alpha = opa.toFixed(1);
         } else {
             alpha = (1.0 - opa).toFixed(1);
         }
 
-        this.cursor[ch]
-            .css({
-                left: 70 + pos * 90 - 1,
-                boxShadow: '0 0 5px 5px rgba(127,127,255,' + alpha + ')'
-            });
-    }
+        this.cursor[bank].css({
+            left: 70 + pos * 90 - 1,
+            boxShadow: '0 0 5px 5px rgba(127, 127, 255,' + alpha + ')'
+        });
+    };
 
-
-    MiniWindow.prototype.drawDescArea = function(id) {
-        var div = $('<div>')
-        .attr({ id: id })
-        .css({
-            position: 'absolute',
-            top: 150,
-            left: 100,
-            width: 400
-        }).appendTo(this.root);
-
-        $('<div>')
-        .attr({ id: id + '1'})
-        .css({
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            color: '#fff',
-            fontSize: 16
-        }).appendTo(div);
-
-        $('<div>')
-        .attr({ id: id + '2'})
-        .css({
-            position: 'absolute',
-            top: 50,
-            left: 0,
-            color: '#fff',
-            fontSize: 16
-        }).appendTo(div);
-
-        return div;
-    }
 
     MiniWindow.prototype.drawCommonDesc = function() {
-        var desc = '[A][Z] cross fade<br>'
-                 + '[S][X] audio sensitivity<br>';
+        var desc = [
+            //"[A][Z] cross fade",
+            //"[S][X] audio sensitivity"
+        ];
 
-        var p = this.app.plugin.getPluginInfoList("common");
+        var plugins = nwdrome.plugin.getPluginInfoList("common");
 
-        for (var i in p) {
-            if (p[i].description) {
-                var s = p[i].description.match(/^ *\[.*$/m);
-                if (s) {
-                    desc += s + '<br>';
-                }
+        for (var i in plugins) {
+            if (plugins[i].description) {
+                var s = plugins[i].description.match(/^ *\[.*$/m);
+                s && desc.push(s);
             }
         }
 
-        $('#' + this.id + '_com').html(desc);
-    }
+        $('#' + this.id + '_com').html(desc.join("<br>"));
+    };
 
-    MiniWindow.prototype.showDescriptionSub = function(isA) {
-        var n, pluginId, s, elem, info;
-        if (isA) {
-            n = 0;
-            pluginId = this.app.mixer.getSelectedPluginId(0);
-            s = this.key[0][pluginId];
-            elem = this.descA;
-        } else {
-            n = 1;
-            pluginId = this.app.mixer.getSelectedPluginId(1);
-            s = this.key[1][pluginId];
-            elem = this.descB;
-        }
-        if (! (info = this.app.plugin.getPluginInfo(pluginId)))
+
+    MiniWindow.prototype.showPluginDescription = function(isA) {
+        var info;
+
+
+        var n           = isA ? 0 : 1,
+            pluginId    = nwdrome.mixer.getSelectedPluginId(n),
+            pos         = nwdrome.mixer.getSelectedPluginIndex(n),
+            s           = this.key[n][pos],
+            elem        = isA ? this.descA : this.descB;
+
+        if (! (info = nwdrome.plugin.getPluginInfo(pluginId))) {
             return;
-        var text = info.description;
-        var re = text.match(/(.*)/g);
-        var title = re[0];
-        var body = text.substring(title.length + 1);
-        elem.children(':first')
-        .text('[' + s + '] ' + title)
-        .next()
-        .html(body.replace(/\n/g, '<br>'));
-    }
+        }
 
-    MiniWindow.prototype.showDescription = function() {
-        this.showDescriptionSub(true);
-        this.showDescriptionSub(false);
-    }
+        var text = info.description;
+        var match = text.match(/(.*)/g);
+        var title = match && match[0];
+        var body = text.substring(title.length + 1);
+
+        elem.children(':first')
+            .text('[' + s + '] ' + title)
+            .next()
+            .html(body.replace(/\n/g, '<br>'));
+    };
+
+    MiniWindow.prototype.showAllDescription = function() {
+        this.showPluginDescription(true);
+        this.showPluginDescription(false);
+    };
 
     ////////////////////////
     MiniWindow.prototype.onStart    = noop;
@@ -303,46 +320,37 @@ nwdrome.plugin.addCommon(function(config) {
     MiniWindow.prototype.onStop     = noop;
 
     MiniWindow.prototype.onFade = function(opa) {
-        this.descA.css({opacity: opa});
-        this.descB.css({opacity: 1.0 - opa});
+        // Expect call from mixer#fadeChanged event listener;
+        this.descA.css({opacity: 0.3 + opa});
+        this.descB.css({opacity: 0.3 + (1.0 - opa)});
 
-        this.setCursor(0, this.app.mixer.getSelectedPluginIndex(0), opa);
-        this.setCursor(1, this.app.mixer.getSelectedPluginIndex(1), opa);
-    }
+        this.setCursor(0, opa);
+        this.setCursor(1, opa);
+
+        this.xfader.val((opa * 100) | 0);
+    };
 
     MiniWindow.prototype.onAudio    = noop;
 
     MiniWindow.prototype.onKeydown = function(keyState) {
         switch (keyState.keyCode) {
 
-        case 65: // A
-        case 90: // Z
-            this.xfader.val(Math.floor(this.app.fade * 100));
-            break;
-
         case 13:		// return
-            this.enable = !this.enable;
+            this.enable = ! this.enable;
+
             if (this.enable) {
-                this.descCommon
-                .css({ display: 'block' });
-                this.descA
-                .css({ display: 'block' });
-                this.descB
-                .css({ display: 'block' });
-                this.thumb
-                .css({ display: 'block' });
-                // app.onResize();
+                this.descCommon.css({ display: 'block' });
+                this.descA.css({ display: 'block' });
+                this.descB.css({ display: 'block' });
+                this.thumb.css({ display: 'block' });
             } else {
-                this.descCommon
-                .css({ display: 'none' });
-                this.descA
-                .css({ display: 'none' });
-                this.descB
-                .css({ display: 'none' });
-                this.thumb
-                .css({ display: 'none' });
-                // app.onResize();
+                this.descCommon.css({ display: 'none' });
+                this.descA.css({ display: 'none' });
+                this.descB.css({ display: 'none' });
+                this.thumb.css({ display: 'none' });
             }
+
+            // app.onResize();
             break;
 
         // プラグイン切り替え
@@ -356,11 +364,8 @@ nwdrome.plugin.addCommon(function(config) {
         case 56: // 8
         case 57: // 9
         case 48: // 0
-            this.showDescription();
-            this.setCursor(
-                0,
-                this.app.mixer.getSelectedPluginIndex(0),
-                this.app.mixer.getFade());
+            this.showAllDescription();
+            this.setCursor(0, nwdrome.mixer.getFade());
             break;
 
         case 81: // Q
@@ -373,29 +378,13 @@ nwdrome.plugin.addCommon(function(config) {
         case 73: // I
         case 79: // O
         case 80: // P
-            this.showDescription();
-            this.setCursor(
-                1,
-                this.app.mixer.getSelectedPluginIndex(1),
-                this.app.mixer.getFade());
+            this.showAllDescription();
+            this.setCursor(1, nwdrome.mixer.getFade());
             break;
         }
-    }
+    };
 
-    MiniWindow.prototype.onResize = function(x, y, width, height) {
-        if (this.enable) {
-            // app.draww = Math.floor(width / 2 - 100);
-            // app.drawh = Math.floor(app.draww * 9 / 16);
-            // app.drawx = Math.floor(width / 2 + 50);
-            // app.drawy = 200;
-        }
-
-        // var y = app.drawy;
-        // this.descA.css({top: y});
-        // this.descB.css({top: y});
-        //
-        // this.thumb.css({ left: (width - this.thumbWidth) / 2})
-    }
+    MiniWindow.prototype.onResize = noop;
 
     MiniWindow.prototype.onTimer = noop;
 
@@ -411,8 +400,8 @@ nwdrome.plugin.addCommon(function(config) {
                     case 45:
                     case 48:
                     case 49:
-                        this.showDescription();
-                        this.setCursor(0, this.app.selPluginA, this.app.fade);
+                        this.showAllDescription();
+                        this.setCursor(0, nwdrome.mixer.getFade());
                         break;
 
                     case 38:
@@ -423,15 +412,15 @@ nwdrome.plugin.addCommon(function(config) {
                     case 47:
                     case 50:
                     case 51:
-                        this.showDescription();
-                        this.setCursor(1, this.app.selPluginB, this.app.fade);
+                        this.showAllDescription();
+                        this.setCursor(1, nwdrome.mixer.getFade());
                         break;
                 }
 
             case 0xB0:	// CC#
                 switch (a2) {
                     case 1:
-                        this.xfader.val(Math.floor(this.app.fade * 100));
+                        this.xfader.val(Math.floor(nwdrome.mixer.getFade() * 100));
                         break;
                 }
                 break;
