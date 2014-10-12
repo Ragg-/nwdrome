@@ -4,12 +4,12 @@ define(function (require, exports, module) {
     function _getCallerFilePath(stackDeep) {
         stackDeep = stackDeep == null ? 0 : stackDeep;
 
-        var stack = new Error().stack.split(/\r|\n|\r\n/),
-            calledOn  = stack && stack[2] && stack[2 + stackDeep].match(/\((.+)\)/),
-            file = calledOn && calledOn[1] && calledOn[1].match(/(.+):\d+:\d+$/);
+        var stack = (new Error()).stack.split(/\r|\n|\r\n/);
+        var calledOn  = stack && stack.length >= (2 + stackDeep) && stack[2 + stackDeep].match(/at ((?:\(.+?\))|(?:.+?)):\d/);
+        var file = calledOn && calledOn[1];
 
-        if (file && file[1]) {
-            return file[1]
+        if (file) {
+            return file;
         }
     }
 
