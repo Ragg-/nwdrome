@@ -5,24 +5,18 @@
 // Port to nwdrome by Ragg(@_ragg_)
 
 nwdrome.plugin.addRenderer(function (config) {
-    function noop() {}
-
-    // Plugin info mation
-    var ID = 'jsdrome.3d-box',
+    // Plugin information
+    var ID          = 'jsdrome.3d-box',
         DESCRIPTION =
             "Cube\n"
             + "  3D cube plugin\n"
             + "  Audio affects cube size\n"
             + "  [D][C] move/stop\n",
+        THUMBNAIL   = config.url + '3d-cube.png';
 
-        THUMBNAIL = config.url + '3d-cube.png';
-
-    var instanceCount = 0;
-
+    function noop() {}
 
     var Cube = function(canvas) {
-        var n = instanceCount++;
-
         this.canvas = canvas;
 
         this.texture1 = [
